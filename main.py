@@ -200,9 +200,61 @@ def draw_pieces():
         if turn_step >= 2 and selection == i:
             pygame.draw.rect(screen, 'blue', [black_locations[i][0] * 100 + 1, black_locations[i][1] * 100 + 1, 100, 100], 2)
 
-# Function to check all pieces valid options on board
-def check_options():
-    pass
+# Função para verificar todas as opções válidas de movimento das peças no tabuleiro
+def check_options(pieces, locations, turn):
+    """
+    Verifica todas as opções válidas de movimento para as peças no tabuleiro de xadrez.
+
+    A função itera sobre as peças fornecidas, chamando funções específicas para cada tipo
+    de peça (peão, torre, cavalo, bispo, rainha, rei) para determinar os movimentos possíveis
+    em um único turno. O resultado é uma lista contendo todas as opções de movimento para
+    cada peça.
+
+    Parâmetros:
+    - pieces: Lista contendo os tipos de peças no tabuleiro.
+    - locations: Lista contendo as localizações das peças no tabuleiro.
+    - turn: Indicação do turno atual no jogo.
+
+    Retorno:
+    - all_moves_list: Lista contendo listas de movimentos válidos para cada peça.
+    """
+
+    # Lista para armazenar os movimentos de cada peça
+    moves_list = []
+    # Lista para armazenar os movimentos de todas as peças
+    all_moves_list = []
+    
+    for i in range(len(pieces)):
+        location = locations[i]
+        piece = pieces[i]
+        
+        # OBS: Passamos de quem é o turno, pois uma peça de mesma cor não pode se mover contra uma peça aliada
+        if piece == 'pawn':
+            moves_list = check_pawn(location, turn)
+
+        elif piece == 'rook':
+            moves_list = check_rook(location, turn)
+
+        elif piece == 'knight':
+            moves_list = check_knight(location, turn)
+
+        elif piece == 'bishop':
+            moves_list = check_bishop(location, turn)
+
+        elif piece == 'queen':
+            moves_list = check_queen(location, turn)
+
+        elif piece == 'king':
+            moves_list = check_king(location, turn)
+
+        # Adiciona a lista de movimentos da peça atual à lista global
+        all_moves_list.append(moves_list)
+
+    # Retorna a lista global de movimentos de todas as peças
+    return all_moves_list
+
+black_options = check_options(black_pieces, black_locations, 'black')
+white_options = check_options(white_pieces, white_locations, 'white')
 
 # Loop Principal
 run = True
