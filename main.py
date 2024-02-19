@@ -332,6 +332,14 @@ def check_knight(position, color):
             moves_list.append(target)
     return moves_list
 
+# check queen valid moves
+def check_queen(position, color):
+    moves_list = check_bishop(position, color)
+    second_list = check_rook(position, color)
+    for i in range(len(second_list)):
+        moves_list.append(second_list[i])
+    return moves_list
+
 # draw valid moves on  screen
 def draw_valid(moves):
     if turn_step < 2:
