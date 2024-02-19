@@ -1,3 +1,4 @@
+from ctypes import pointer
 import pygame
 
 pygame.init()
@@ -200,7 +201,6 @@ def draw_pieces():
         if turn_step >= 2 and selection == i:
             pygame.draw.rect(screen, 'blue', [black_locations[i][0] * 100 + 1, black_locations[i][1] * 100 + 1, 100, 100], 2)
 
-# Função para verificar todas as opções válidas de movimento das peças no tabuleiro
 def check_options(pieces, locations, turn):
     """
     Verifica todas as opções válidas de movimento para as peças no tabuleiro de xadrez.
@@ -232,7 +232,7 @@ def check_options(pieces, locations, turn):
         if piece == 'pawn':
             moves_list = check_pawn(location, turn)
 
-        elif piece == 'rook':
+        '''elif piece == 'rook':
             moves_list = check_rook(location, turn)
 
         elif piece == 'knight':
@@ -248,10 +248,68 @@ def check_options(pieces, locations, turn):
             moves_list = check_king(location, turn)
 
         # Adiciona a lista de movimentos da peça atual à lista global
-        all_moves_list.append(moves_list)
+        all_moves_list.append(moves_list)'''
 
     # Retorna a lista global de movimentos de todas as peças
     return all_moves_list
+
+def check_pawn(position, color):
+    """
+    Verifica os movimentos válidos de um peão no tabuleiro de xadrez.
+
+    A função recebe a posição atual e a cor do peão e determina os movimentos possíveis,
+    incluindo avançar uma ou duas casas, capturar peças na diagonal e outros movimentos
+    específicos para peões.
+
+    Parâmetros:
+    - position: Tupla representando a posição atual do peão no formato (x, y).
+    - color: Cor do peão ('white' ou 'black').
+
+    Retorno:
+    - moves_list: Lista de tuplas representando as posições válidas para o peão se mover.
+    """
+
+    moves_list = []
+
+    if color == 'white':
+        # Avançar uma casa para frente
+        if (position[0], position[1] + 1) not in white_locations and \
+        (position[0], position[1] + 1) not in black_locations and position[1] < 7:
+            moves_list.append((position[0], position[1] + 1))
+
+        # Avançar duas casas para frente, caso seja o primeiro movimento
+        if (position[0], position[1] + 2) not in white_locations and \
+        (position[0], position[1] + 2) not in black_locations and position[1] == 1:
+            moves_list.append((position[0], position[1] + 2))
+
+        # Capturar peça na diagonal direita
+        if (position[0] + 1, position[1] + 1) not in black_locations:
+            moves_list.append((position[0] + 1, position[1] + 1))
+
+        # Capturar peça na diagonal esquerda
+        if (position[0] - 1, position[1] + 1) not in black_locations:
+            moves_list.append((position[0] - 1, position[1] + 1))
+
+    else:
+        # Avançar uma casa para frente
+        if (position[0], position[1] - 1) not in white_locations and \
+        (position[0], position[1] - 1) not in black_locations and position[1] > 0:
+            moves_list.append((position[0], position[1] - 1))
+
+        # Avançar duas casas para frente, caso seja o primeiro movimento
+        if (position[0], position[1] - 2) not in white_locations and \
+        (position[0], position[1] - 2) not in black_locations and position[1] == 6:
+            moves_list.append((position[0], position[1] - 2))
+
+        # Capturar peça na diagonal direita
+        if (position[0] + 1, position[1] - 1) not in white_locations:
+            moves_list.append((position[0] + 1, position[1] - 1))
+
+        # Capturar peça na diagonal esquerda
+        if (position[0] - 1, position[1] - 1) not in white_locations:
+            moves_list.append((position[0] - 1, position[1] - 1))
+            
+    return moves_list
 
 black_options = check_options(black_pieces, black_locations, 'black')
 white_options = check_options(white_pieces, white_locations, 'white')
