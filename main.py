@@ -1,4 +1,5 @@
 from ctypes import pointer
+import select
 import pygame
 
 pygame.init()
@@ -232,7 +233,7 @@ def check_options(pieces, locations, turn):
         if piece == 'pawn':
             moves_list = check_pawn(location, turn)
 
-        '''elif piece == 'rook':
+        elif piece == 'rook':
             moves_list = check_rook(location, turn)
 
         elif piece == 'knight':
@@ -248,10 +249,83 @@ def check_options(pieces, locations, turn):
             moves_list = check_king(location, turn)
 
         # Adiciona a lista de movimentos da peça atual à lista global
-        all_moves_list.append(moves_list)'''
+        all_moves_list.append(moves_list)
 
     # Retorna a lista global de movimentos de todas as peças
     return all_moves_list
+
+# Verifica os movimentos válidos apenas para a peça selecionada
+def check_valid_moves():
+    """
+    Verifica os movimentos válidos apenas para a peça atualmente selecionada no jogo de xadrez.
+
+    A função determina a lista de opções válidas com base no estado do turno e na peça atualmente
+    selecionada. Se o turno estiver na primeira etapa, a função utiliza as opções para as peças
+    brancas; caso contrário, utiliza as opções para as peças pretas.
+
+    Parâmetros:
+    - Nenhum
+
+    Retorno:
+    - valid_options: Lista de tuplas representando as posições válidas para a peça selecionada se mover.
+    """
+
+    # Verifica o turno atual para determinar a lista de opções
+    if turn_step < 2:
+        options_list = white_options
+    else:
+        options_list = black_options
+
+    # Obtém as opções válidas para a peça atualmente selecionada
+    valid_options = options_list[selection]
+
+    # Retorna a lista de opções válidas
+    return valid_options
+
+def check_rook(position, color):
+    moves_list = []
+    if color == 'white':
+        enemies_list = black_locations
+        friends_list = white_locations
+    else:
+        friends_list = black_locations
+        enemies_list = white_locations
+    for i in range(4):  # down, up, right, left
+        path = True
+        chain = 1
+        if i == 0:
+            x = 0
+            y = 1
+        elif i == 1:
+            x = 0
+            y = -1
+        elif i == 2:
+            x = 1
+            y = 0
+        else:
+            x = -1
+            y = 0
+        while path:
+            if (position[0] + (chain * x), position[1] + (chain * y)) not in friends_list and \
+                    0 <= position[0] + (chain * x) <= 7 and 0 <= position[1] + (chain * y) <= 7:
+                moves_list.append((position[0] + (chain * x), position[1] + (chain * y)))
+                if (position[0] + (chain * x), position[1] + (chain * y)) in enemies_list:
+                    path = False
+                chain += 1
+            else:
+                path = False
+    return moves_list
+
+# draw valid moves on  screen
+def draw_valid(moves):
+    if turn_step < 2:
+        color = 'red'
+
+    else:
+        color = 'blue'
+
+    for i in range(len(moves)):
+        pygame.draw.circle(screen, color, (moves[i][0] * 100 + 50, moves[i][1] * 100 + 500), 5)
 
 def check_pawn(position, color):
     """
@@ -323,7 +397,11 @@ while run:
     screen.fill('dark gray')
     draw_board()
     draw_pieces()
-    
+
+    if selection != 100:
+        valid_moves = check_valid_moves()
+        draw_valid(valid_moves)
+
     # Tratamento de Eventos
     for event in pygame.event.get():
         # Verifica se o X da Janela do Jogo foi Clicada
